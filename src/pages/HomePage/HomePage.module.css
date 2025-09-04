@@ -1,0 +1,9 @@
+.home_container {
+  padding: 20px 100px 10px 100px;
+}
+
+.cardmovie_container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}

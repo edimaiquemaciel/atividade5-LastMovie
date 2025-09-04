@@ -1,0 +1,36 @@
+.header_container {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 15px;
+    background-color: #000000;
+    padding: 20px 100px 20px 100px;
+}
+
+.header_container h1 {
+    font-size: 25px;
+    font-weight: 700;
+    color: red;
+}
+
+.list_nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #FFFFFF;
+    list-style: none;
+}
+
+.list_nav li a {
+    transition: color .4s ease-in-out;
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+.list_nav li a:hover {
+    color: #D1D5DB;
+}
+
+.search_icon:hover {
+    background-color: #FFFFFF;
+}
