@@ -33,27 +33,41 @@ function CardMovie({movie, genres = {}}) {
 
   return (
     <>
-      <Card 
-        sx={{ 
-          minWidth: 220, 
-          maxHeight: 520, 
+      <Card
+        sx={{
+          minWidth: 220,
+          minHeight: 400,
+          maxHeight: 500,
           position: "relative",
-          cursor: "pointer"
+          cursor: "pointer",
+          backgroundColor: "#0d0d1a",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+          transition: 'transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out',
+        '&:hover': {
+            transform: 'scale(1.05)', // Animação de escala suave no hover
+            boxShadow: '0 8px 12px rgba(239, 68, 68, 0.4)', // Sombra mais intensa no hover
+        },
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <CardMedia
           sx={{
-            height: 330,
-            objectFit: "contain"
+            height: 330, // ✅ altura fixa (não minHeight)
+            objectFit: "contain",
+            backgroundColor: "#1a1a1a", // fundo escuro caso imagem falhe
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
           component="img"
           image={imageUrl + movie.poster_path}
           alt={movie.title}
-          title={movie.title}
+          onError={(e) => {
+            e.target.onerror = null; // evita loop
+            e.target.src = "/images/placeholder-poster.png"; // fallback
+          }}
         />
-        
         {/* Overlay com botão de play */}
         <Box
           sx={{
@@ -75,13 +89,17 @@ function CardMovie({movie, genres = {}}) {
               color: "white",
               border: "2px solid white",
               fontSize: "2rem",
-              "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+              transition: 'transform 0.3s ease-in-out', // Adiciona transição para o ícone
+              transform: isHovered ? 'scale(1.2)' : 'scale(1)', // Animação de escala ativada pelo hover do card
+              "&:hover": { 
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+              },
             }}
           >
-            <FaPlay size={20} style={{marginLeft: "2px"}} />
+            <FaPlay size={20} style={{ marginLeft: "2px" }} />
           </IconButton>
         </Box>
-        
+
         {/* Badge de avaliação */}
         <Typography
           variant="body2"
@@ -90,7 +108,7 @@ function CardMovie({movie, genres = {}}) {
             position: "absolute",
             top: 8,
             left: 8,
-            backgroundColor: "primary.main",
+            backgroundColor: "#ef4444",
             color: "white",
             fontWeight: "bold",
             padding: "2px 8px",
@@ -101,8 +119,14 @@ function CardMovie({movie, genres = {}}) {
         >
           ⭐ {movie.vote_average.toFixed(1)}
         </Typography>
-        
-        <CardContent sx={{paddingInline: "12px", paddingBlockEnd: 0}}>
+
+        <CardContent
+          style={{
+            paddingBottom: "10px",
+            paddingTop: "10px",
+            backgroundColor: "#0d0d1a",
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -115,50 +139,51 @@ function CardMovie({movie, genres = {}}) {
               component="div"
               sx={{
                 fontWeight: 600,
-                color: "text.primary",
+                color: "#fff",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 flex: 1,
                 mr: 1,
-                fontSize: 16
+                fontSize: 16,
               }}
             >
               {movie.title}
             </Typography>
-            
+
             {/* Botão de Favoritos à direita do título */}
             <IconButton
               sx={{
-                color: "text.secondary",
-                "&:hover": { color: "primary.main" },
+                color: "#a0aec0", // Cor do texto secundário
+                "&:hover": { color: "#ef4444" }, // Cor do hover
                 flexShrink: 0,
               }}
             >
               <MdFavoriteBorder size={20} />
             </IconButton>
           </Box>
-          
+
           {/* Gêneros e Ano */}
-          <Typography 
-          variant="body2" 
-          color="text.secondary"
-          sx={{
-            fontSize: 11,
-            fontWeight: 500
-          }}
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              color: '#a0aec0', // Cor do texto secundário
+              fontSize: 11,
+              fontWeight: 500,
+            }}
           >
             <span>{getGenreNames()}</span>
             <span style={{ margin: "0 4px" }}>•</span>
             <span>{getReleaseYear()}</span>
           </Typography>
-          
+
           {/* Overview do filme */}
           <Typography
             variant="body2"
             color="text.secondary"
             sx={{
-              color: "text.secondary",
+              color: '#a0aec0',
               display: "-webkit-box",
               WebkitLineClamp: 3,
               WebkitBoxOrient: "vertical",
@@ -167,9 +192,10 @@ function CardMovie({movie, genres = {}}) {
               fontSize: "0.785rem",
               mt: 1,
               lineHeight: "1.5",
+              minHeight: 56.5156,
             }}
           >
-            {movie.overview || 'Descrição não disponível.'}
+            {movie.overview || "Descrição não disponível."}
           </Typography>
         </CardContent>
       </Card>

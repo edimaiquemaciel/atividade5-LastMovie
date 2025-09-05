@@ -11,14 +11,14 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [genresData, setGenresData] = useState({}); // ✨ Estado para os gêneros
+  const [genresData, setGenresData] = useState({});
 
-  // ✅ Estado para controlar a opacidade da lista (transição visual)
   const [containerOpacity, setContainerOpacity] = useState(1);
-
   const containerRef = useRef();
 
-  // 🎬 Função para buscar gêneros
+  // Tempo mínimo de exibição do skeleton (em milissegundos)
+  const MIN_LOADING_TIME = 700;
+
   const fetchGenres = async () => {
     try {
       const res = await Api.get('/genre/movie/list');
@@ -34,31 +34,41 @@ function HomePage() {
 
   const fetchMovies = async (pageNumber) => {
     setLoading(true);
-    setContainerOpacity(0.7); // 🔥 Começa o fade out
+    setContainerOpacity(0.7);
+
+    const startTime = Date.now(); // Marca o início da requisição
 
     try {
       const res = await Api.get(`/movie/popular?page=${pageNumber}`);
       const data = res.data.results;
       setMoviesData(data);
-      console.log(data);
-      
       setTotalPages(Math.min(res.data.total_pages, 500));
     } catch (error) {
       console.error("Erro ao buscar filmes:", error);
       setMoviesData([]);
     } finally {
-      setLoading(false);
-      // ✅ Volta ao topo instantaneamente
       window.scrollTo({ top: 0, behavior: "instant" });
-      // ✅ Depois de um pequeno delay, volta a opacidade
+
+      // Calcula quanto tempo já se passou
+      const elapsedTime = Date.now() - startTime;
+      // Calcula quanto tempo ainda precisa esperar para cumprir o mínimo
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
+
+      // Só então desativa o skeleton e restaura a opacidade
       setTimeout(() => {
+        setLoading(false);
         setContainerOpacity(1);
-      }, 100); // Pequeno delay para o efeito ser visível
+      }, remainingTime);
     }
   };
 
-  // 🚀 Buscar gêneros apenas uma vez quando o componente monta
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    window.scrollTo({ top: 0, behavior: "instant" });
+
     fetchGenres();
   }, []);
 
@@ -82,13 +92,13 @@ function HomePage() {
         }}
       >
         {loading
-          ? Array.from({ length: 4 }).map((_, index) => (
+          ? Array.from({ length: 10 }).map((_, index) => (
               <SkeletonCard key={index} />
             ))
           : moviesData.map((movie, index) => (
               <motion.div
                 key={`page-${page}-movie-${movie.id}`}
-                style={{ width: '220px' }}
+                style={{ width: "220px" }}
                 initial={{
                   opacity: 0,
                   y: 15,
@@ -106,7 +116,7 @@ function HomePage() {
                 }}
                 transition={{
                   duration: 0.6,
-                  delay: Math.floor(index / 4) * 0.1, // Anima por linha
+                  delay: Math.floor(index / 4) * 0.1,
                   ease: "easeOut",
                 }}
               >
@@ -120,7 +130,29 @@ function HomePage() {
           count={totalPages}
           page={page}
           onChange={handleChange}
-          color="primary"
+          sx={{
+            "& .MuiPaginationItem-root": {
+              color: "#d32f2f",
+              borderRadius: "8px",
+              border: "1px solid transparent",
+              fontWeight: 600
+            },
+            "& .Mui-selected": {
+              backgroundColor: "#d32f2f",
+              color: "white",
+              fontWeight: "bold",
+            },
+            "& .MuiPaginationItem-root:hover": {
+              backgroundColor: "rgba(211, 47, 47, 0.08)",
+              borderColor: "rgba(211, 47, 47, 0.3)",
+            },
+            "& .MuiPaginationItem-previousNext": {
+              color: "#d32f2f",
+              "&:hover": {
+                backgroundColor: "rgba(211, 47, 47, 0.08)",
+              },
+            },
+          }}
           shape="rounded"
         />
       </Stack>
